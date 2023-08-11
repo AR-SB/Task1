@@ -1,0 +1,110 @@
+﻿@model Task1.Models.Application
+
+@{
+    ViewData["Title"] = "Application Details";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card   border border-success shadow-lg shadow-success">
+                    <div class="card-header bg-success">
+                        <h2 class="card-title text-light fs-3">@ViewData["Title"]</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong class="fs-5">Full Name</strong></td>
+                                    <td class="fs-5">@Model.FullName</td>
+                                   
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Email</strong></td>
+                                    <td class="fs-5">@Model.Email</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Gender</strong></td>
+                                    <td class="fs-5">@Model.Gender</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Date of Birth</strong></td>
+                                    <td class="fs-5">@Model.DateOfBirth.ToShortDateString()</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Major</strong></td>
+                                    <td class="fs-5">@Model.Major</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Telephone Number</strong></td>
+                                    <td class="fs-5">@Model.TelephoneNumber</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Address</strong></td>
+                                    <td class="fs-5">@Model.Address</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">PDF</strong></td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(Model.FileName))
+                                        {
+                                            <a href="@Url.Content("~/uploads/" + Model.FileName)" class="btn btn-outline-warning btn-sm">Download PDF</a>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Aplication Date</strong></td>
+                                    <td class="fs-5">@Model.SubmissionTimestamp.ToString("dd-MM-yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong class="fs-5">Application Status</strong></td>
+                                    <td class="fs-5">
+                                        @Html.Raw(Model.ApplicationStatus.HasValue ?
+                                        (Model.ApplicationStatus.Value ?
+                                        "<span class='text-success'>Approved</span>" :
+                                        "<span class='text-danger'>Disapproved</span>") :
+                                        "<span class='text-muted'>N/A</span>")
+                                    </td>
+
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="@Url.Action("ViewApplications")" class="btn btn-outline-dark">Back to List</a>
+                            <div class="row">
+                                <div class="col">
+                                    <a asp-action="Disapprove" asp-route-id="@Model.ApplicationId" class="btn btn-outline-danger">Disapprove</a>
+                                </div>
+                                <div class="col">
+                                    <form method="post" asp-action="ApproveAndRedirect" asp-route-id="@Model.ApplicationId">
+                                        <button type="submit" class="btn btn-outline-success">Approve</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+
+ 
+
+    
+</body>
+</html>
+
+

@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Task1.Models.Application>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col">
+            <h2 class="text-center mb-4">Application Records</h2>
+            <div class="table-responsive">
+                <table class="table table-hover border table-borderless border-success">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Major</th>
+                            <th>Application Status</th>
+                            <th>Action Date</th> <!-- New column -->
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var application in Model)
+                        {
+                            <tr>
+                                <td>@application.FullName</td>
+                                <td>@application.Email</td>
+                                <td>@application.Major</td>
+                                <td>
+                                    @if (application.ApplicationStatus.HasValue)
+                                    {
+                                        <span class="fw-bold @(application.ApplicationStatus.Value ? "text-success" : "text-danger")">
+                                            @(application.ApplicationStatus.Value ? "Approved" : "Disapproved")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (application.ActionDate.HasValue)
+                                    {
+                                        <span class="@(application.ApplicationStatus.HasValue ? (application.ApplicationStatus.Value ? "text-success" : "text-danger") : "text-muted")">
+                                            @application.ActionDate.Value.ToString("dd-MM-yyyy")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="ViewDetails" asp-route-id="@application.ApplicationId" class="btn btn-outline-dark">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
