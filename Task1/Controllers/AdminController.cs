@@ -1,38 +1,63 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Task1.Models;
 using Task1.Data;
 using System;
-using System.Net.Mail;  // Add this line
+using System.Net.Mail;
 using System.Globalization;
 using Newtonsoft.Json;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MailKit.Security;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Data.SqlClient;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace Task1.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly IConfiguration _configuration;
 
-        public AdminController(ApplicationDbContext db)
+        public AdminController(ApplicationDbContext db, IConfiguration configuration)
         {
             _db = db;
+            _configuration = configuration;
         }
-
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
+    
         [HttpPost]
-        public IActionResult Login(Admin model)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(Admin model)
         {
             if (ModelState.IsValid)
             {
-                if (IsValidCredentials(model.Username, model.PasswordHash))
+                var admin = _db.Admin.FirstOrDefault(a => a.Username == model.Username);
+                if (admin != null && model.PasswordHash == admin.PasswordHash)
                 {
+                    var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, admin.Username),
+            };
+
+                    var identity = new ClaimsIdentity(claims, "LoginAuthentication");
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync("LoginAuthentication", principal);
+
+                    
+
                     return RedirectToAction("ViewApplications", "Admin");
                 }
                 else
@@ -44,12 +69,9 @@ namespace Task1.Controllers
             return View(model);
         }
 
-        private bool IsValidCredentials(string username, string password)
-        {
-            var admin = _db.Admin.FirstOrDefault(a => a.Username == username);
-            return admin != null && admin.PasswordHash == password;
-        }
 
+
+        [Authorize]
         public IActionResult ViewApplications()
         {
             var applications = _db.Application.ToList();
@@ -59,7 +81,7 @@ namespace Task1.Controllers
 
 
         [HttpPost]
-        public IActionResult ApproveAndRedirect(int id, DateTime scheduledDateTime)
+        public IActionResult ApproveAndRedirect(int id, DateTime? scheduledDateTime)
         {
             var application = _db.Application.Find(id);
             if (application != null)
@@ -68,15 +90,18 @@ namespace Task1.Controllers
                 application.ActionDate = DateTime.Now;
                 _db.SaveChanges();
 
-               
-                SendEmailToApplicant(application.Email, scheduledDateTime, application);
+                if (scheduledDateTime.HasValue)
+                {
+                    SendEmailToApplicant(application.Email, scheduledDateTime.Value, application);
 
-                TempData["EmailSent"] = "Email sent successfully!";
+                    TempData["EmailSent"] = "Email sent successfully!";
+                }
 
                 return RedirectToAction("SendEmail", new { id });
             }
-            return RedirectToAction("ViewDetails", new { id });
+            return RedirectToAction("SendEmail", new { id });
         }
+
 
         private void SendEmailToApplicant(string recipientEmail, DateTime scheduledDateTime, Task1.Models.Application application)
         {
@@ -112,37 +137,14 @@ namespace Task1.Controllers
                 // Disconnect from the server
                 client.Disconnect(true);
             }
-           
+
 
         }
-
-
-
-
-
-        public IActionResult Disapprove(int id)
+        public IActionResult AccessDenied()
         {
-            var application = _db.Application.Find(id);
-            if (application != null)
-            {
-                application.ApplicationStatus = false;
-                application.ActionDate = DateTime.Now;
-                _db.SaveChanges();
-            }
-            return RedirectToAction("ViewApplications", new { id });
+            return View();
         }
-        public IActionResult SendEmail(int id)
-        {
-            var application = _db.Application.FirstOrDefault(a => a.ApplicationId == id);
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-           
-            return View(application);
-        }
-
+        [Authorize]
         public IActionResult ViewDetails(int id)
         {
             var application = _db.Application.FirstOrDefault(a => a.ApplicationId == id);
@@ -153,6 +155,16 @@ namespace Task1.Controllers
 
             return View(application);
         }
+        [Authorize]
+        public IActionResult SendEmail(int id)
+        {
+            var application = _db.Application.FirstOrDefault(a => a.ApplicationId == id);
+            if (application == null)
+            {
+                return NotFound();
+            }
 
+            return View(application);
+        }
     }
 }
