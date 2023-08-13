@@ -5,7 +5,7 @@ namespace Task1.Models
     public class Admin
     {
         [Key]
-        public int Id { get; set; }
+        public int EmployeeId { get; set; }
 
         [Required]
         public string Username { get; set; }

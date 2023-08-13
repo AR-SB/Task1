@@ -92,7 +92,7 @@ namespace Task1.Controllers
 
                 if (scheduledDateTime.HasValue)
                 {
-                    SendEmailToApplicant(application.Email, scheduledDateTime.Value, application);
+                    SendEmailToApplicant(application.Email, scheduledDateTime.Value, application, true);
 
                     TempData["EmailSent"] = "Email sent successfully!";
                 }
@@ -103,32 +103,52 @@ namespace Task1.Controllers
         }
 
 
-        private void SendEmailToApplicant(string recipientEmail, DateTime scheduledDateTime, Task1.Models.Application application)
+        private void SendEmailToApplicant(string recipientEmail, DateTime? scheduledDateTime, Task1.Models.Application application, bool isApproved)
         {
             // Configure MIME message
-
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("USAL", "your@email.com")); // Sender's information
             message.To.Add(new MailboxAddress("", recipientEmail)); // Recipient's email
-            message.Subject = "Application Approved";
 
-            // Customize email body
-            var emailBody = $"Dear {application.FullName},\n\n" +
-                            "We are pleased to inform you that your application has been reviewed and accepted by our admissions committee.\n" +
-                            $"You are invited to come to our campus on {scheduledDateTime:dd/MM/yyyy} at {scheduledDateTime:HH:mm}.\n\n" +
-                            "Best regards,\n" +
-                            "University of Science & Arts";
-
-            message.Body = new TextPart("plain")
+            if (isApproved)
             {
-                Text = emailBody
-            };
+                message.Subject = "Application Approved";
+
+                // Customize email body for approval
+                var emailBody = $"Dear {application.FullName},\n\n" +
+                                "We are pleased to inform you that your application has been reviewed and accepted by our admissions committee.\n" +
+                                $"You are invited to come to our campus on {scheduledDateTime:dd/MM/yyyy} at {scheduledDateTime:HH:mm}.\n\n" +
+                                "Best regards,\n" +
+                                "University of Science & Arts";
+
+                message.Body = new TextPart("plain")
+                {
+                    Text = emailBody
+                };
+            }
+            else
+            {
+                message.Subject = "Application Disapproved";
+
+                // Customize email body for disapproval
+                var emailBody = $"Dear {application.FullName},\n\n" +
+                                "We regret to inform you that your application has been reviewed and disapproved by our admissions committee.\n" +
+                                "If you have any questions or concerns, please feel free to contact us.\n\n" +
+                                "Best regards,\n" +
+                                "University of Science & Arts";
+
+                message.Body = new TextPart("plain")
+                {
+                    Text = emailBody
+                };
+            }
+
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
-                // Connect to Gmail's SMTP server on port 587 with STARTTLS
+                // Connect to SMTP server
                 client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
 
-                // Authenticate with your Gmail app password
+                // Authenticate with your email credentials
                 client.Authenticate("aliridasiblani313@gmail.com", "retyhvftpcnovosi");
 
                 // Send the email
@@ -137,9 +157,8 @@ namespace Task1.Controllers
                 // Disconnect from the server
                 client.Disconnect(true);
             }
-
-
         }
+
         public IActionResult AccessDenied()
         {
             return View();
@@ -166,5 +185,24 @@ namespace Task1.Controllers
 
             return View(application);
         }
+        public IActionResult Disapprove(int id)
+        {
+            var application = _db.Application.Find(id);
+            if (application != null)
+            {
+                application.ApplicationStatus = false;
+                application.ActionDate = DateTime.Now;
+                _db.SaveChanges();
+
+                // Send disapproval email to applicant
+                SendEmailToApplicant(application.Email, null, application, false);
+
+
+                TempData["EmailSent"] = "Email sent successfully!";
+            }
+
+            return RedirectToAction("ViewApplications");
+        }
+
     }
 }

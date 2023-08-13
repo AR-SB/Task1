@@ -1,6 +1,5 @@
-﻿using Task1.Models;
-using Microsoft.EntityFrameworkCore;
-using BCrypt.Net;
+﻿using Microsoft.EntityFrameworkCore;
+using Task1.Models;
 
 namespace Task1.Data
 {
@@ -10,11 +9,20 @@ namespace Task1.Data
         {
 
         }
+
         public DbSet<Application> Application { get; set; }
         public DbSet<Admin> Admin { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Application>()
+                .HasOne<Admin>()
+                .WithMany()
+                .HasForeignKey(a => a.EmployeeId)
+                .IsRequired(false) // Depending on your requirements
+                .OnDelete(DeleteBehavior.Restrict); // Adjust this behavior as needed
+        }
     }
 }
-  
-   
-

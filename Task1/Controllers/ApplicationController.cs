@@ -70,7 +70,7 @@ namespace Task1.Controllers
                         bool canApply = (bool)canApplyParameter.Value;
                         if (!canApply)
                         {
-                            ModelState.AddModelError("", "You can't apply within the same address in less than 24 hours.");
+                            ModelState.AddModelError("", "You can't apply within the same Email address in less than 24 hours.");
                             Console.WriteLine("Email validation: Can't apply within 24 hours");
                             return View(obj);
                         }
@@ -84,8 +84,6 @@ namespace Task1.Controllers
                 }
             }
 
-            // Return a default view if the file condition is not met
-            ModelState.AddModelError("", "Please choose a PDF file.");
             return View(obj);
         }
 

@@ -12,8 +12,8 @@ using Task1.Data;
 namespace Task1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230810100847_Dob3")]
-    partial class Dob3
+    [Migration("20230813200611_IntialCreate3")]
+    partial class IntialCreate3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,11 @@ namespace Task1.Migrations
 
             modelBuilder.Entity("Task1.Models.Admin", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -41,7 +41,7 @@ namespace Task1.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmployeeId");
 
                     b.ToTable("Admin");
                 });
@@ -54,6 +54,9 @@ namespace Task1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApplicationId"));
 
+                    b.Property<DateTime?>("ActionDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -65,6 +68,13 @@ namespace Task1.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -88,7 +98,17 @@ namespace Task1.Migrations
 
                     b.HasKey("ApplicationId");
 
+                    b.HasIndex("EmployeeId");
+
                     b.ToTable("Applications");
+                });
+
+            modelBuilder.Entity("Task1.Models.Application", b =>
+                {
+                    b.HasOne("Task1.Models.Admin", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

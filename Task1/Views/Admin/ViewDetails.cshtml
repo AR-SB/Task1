@@ -83,14 +83,27 @@
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <a href="@Url.Action("ViewApplications")" class="btn btn-outline-dark">Back to List</a>
                             <div class="row">
-                                <div class="col">
-                                    <a asp-action="Disapprove" asp-route-id="@Model.ApplicationId" class="btn btn-outline-danger">Disapprove</a>
-                                </div>
-                                <div class="col">
-                                    <form method="post" asp-action="ApproveAndRedirect" asp-route-id="@Model.ApplicationId">
-                                        <button type="submit" class="btn btn-outline-success">Approve</button>
-                                    </form>
-                                </div>
+                                @if (Model.ApplicationStatus == null)
+                                {
+                                    <div class="col">
+                                        <a asp-action="Disapprove" asp-route-id="@Model.ApplicationId" class="btn btn-outline-danger">Disapprove</a>
+                                    </div>
+                                    <div class="col">
+                                        <form method="post" asp-action="ApproveAndRedirect" asp-route-id="@Model.ApplicationId">
+                                            <button type="submit" class="btn btn-outline-success">Approve</button>
+                                        </form>
+
+                                    </div>
+                                }
+                                else{
+                                    <div class="col">
+                                        <a type="button" class="btn btn-outline-light" style="color:lightgray;pointer-events:none;">Disapprove</a>
+                                    </div>
+                                    <div class="col">
+                                        <a type="button" class="btn btn-outline-light" style="color:lightgray;pointer-events:none;">Approve</a>
+                                    </div>
+                                }
+
                             </div>
 
                         </div>

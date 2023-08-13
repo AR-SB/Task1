@@ -9,6 +9,8 @@ namespace Task1.Models
     {
         [Key]
         public int ApplicationId { get; set; }
+       
+        public int? EmployeeId { get; set; }
 
         [Required(ErrorMessage = "Full Name is required.")]
         public string FullName { get; set; }
@@ -25,7 +27,7 @@ namespace Task1.Models
         public string Address { get; set; }
         [NotMapped]
         public IFormFile PdfFile { get; set; }
-        public string? FileName { get; set; }
+        public string FileName { get; set; }
         public GenderType Gender { get; set; }
 
         public string Major { get; set; }

@@ -5,31 +5,31 @@
 namespace Task1.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedGender2 : Migration
+    public partial class IntialCreate3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<bool>(
-                name: "ApplicationStatus",
+            migrationBuilder.AlterColumn<int>(
+                name: "EmployeeId",
                 table: "Applications",
-                type: "bit",
+                type: "int",
                 nullable: true,
-                oldClrType: typeof(bool),
-                oldType: "bit");
+                oldClrType: typeof(int),
+                oldType: "int");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<bool>(
-                name: "ApplicationStatus",
+            migrationBuilder.AlterColumn<int>(
+                name: "EmployeeId",
                 table: "Applications",
-                type: "bit",
+                type: "int",
                 nullable: false,
-                defaultValue: false,
-                oldClrType: typeof(bool),
-                oldType: "bit",
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
                 oldNullable: true);
         }
     }
